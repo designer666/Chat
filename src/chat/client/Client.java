@@ -10,18 +10,22 @@ import java.util.Scanner;
 /**
  * Created by kyojin on 30.06.17.
  */
+
+//Запустить посредством класса main
 public class Client {
 
-    private BufferedReader in;
-    private PrintWriter out;
-    private Socket  socket;
+    private BufferedReader in;  //переменная класса, считывающего из данные символьного потока ввода, буферизируя прочитанные символы
+    private PrintWriter out;    //переменная класса, выводящего данные в консоль
+    private Socket socket;     //переменная класса, реализующего клиентскй сокет, т.е. конечную точку для связи между двумя клиентами
 
+    //Позволяет подключить клиент к серверу, используя IP и ник пользователем
     public Client() {
         Scanner scan = new Scanner(System.in);
         System.out.println("Введите IP для подключения к серверу");
 
         String ip = scan.nextLine();
 
+        //Создать входящий и исходящий поток при написании IP и ника пользователя
         try {
             socket = new Socket(ip, 8080);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -33,6 +37,7 @@ public class Client {
             Resender resend = new Resender();
             resend.start();
 
+            //Передать данные клиента, при написании слова exit отключает клиента от сервера
             String str = "";
             while (!str.equals("exit")) {
                 str = scan.nextLine();
@@ -47,6 +52,7 @@ public class Client {
 
     }
 
+    //Закрывает все потоки
     private void close() {
         try {
             in.close();
@@ -57,6 +63,7 @@ public class Client {
         }
     }
 
+    //Получает сообщения от сервера и выводить их в консоль до тех пор, пока поток не будет остановлен
     public class Resender extends Thread {
         private boolean stoped;
 

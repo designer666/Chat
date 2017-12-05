@@ -14,18 +14,26 @@ import java.util.List;
 /**
  * Created by kyojin on 30.06.17.
  */
+
+//Запустить посредством класса main
 public class Server {
 
-    private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
-    private ServerSocket server;
+    private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());   //Переменна списка соединений
+    private ServerSocket server;    //Переменная сокета сервера
 
+    //Создать сервер
     public Server() {
+
+        //Создание сокета сервера с определенным портом
         try {
             server = new ServerSocket(8080);
 
             while (true) {
+
+                //Указывает серверу ожидать подключения
                 Socket socket = server.accept();
 
+                //создаёт объект Connection, инициализированный этим сокетом и добавляется в массив
                 Connection con = new Connection(socket);
                 connections.add(con);
                 con.start();
@@ -37,11 +45,13 @@ public class Server {
         }
     }
 
+    //Закрыть все потоки когда отключаются все клиенты
     private void closeAll() {
         try {
             server.close();
 
-            synchronized(connections) {
+            //Перебирает синхронизированно перебирает соединения и при отсутствии данных закрывает потоки
+            synchronized (connections) {
                 Iterator<Connection> iter = connections.iterator();
                 while (iter.hasNext()) {
                     ((Connection) iter.next()).close();
@@ -52,12 +62,14 @@ public class Server {
         }
     }
 
+    //Класс принимает от пользователя сообщения и рассылающий их остальным клиентам:
     private class Connection extends Thread {
         private BufferedReader in;
         private PrintWriter out;
         private Socket socket;
         private String name = "";
 
+        //Конструктор преобразовывает потоки, связанные с сокетом
         public Connection(Socket socket) {
             this.socket = socket;
 
@@ -71,17 +83,20 @@ public class Server {
 
         }
 
+        //Запускается в отдельном потоке и выполняется параллельно с остальной частью программы
         @Override
         public void run() {
+            //Считатьт имя пользователя, после чего его сообщения рассылаются всем клиентам чата
             try {
                 name = in.readLine();
                 synchronized (connections) {
                     Iterator<Connection> iter = connections.iterator();
                     while (iter.hasNext()) {
-                        ((Connection)iter.next()).out.println(name + " подключился");
+                        ((Connection) iter.next()).out.println(name + " подключился");
                     }
                 }
 
+                //Отключить пользователя когда приходит сообщение exit
                 String str = "";
                 while (true) {
                     str = in.readLine();
@@ -89,17 +104,16 @@ public class Server {
                         break;
                     }
                     synchronized (connections) {
-                        Iterator<Connection> iter  = connections.iterator();
+                        Iterator<Connection> iter = connections.iterator();
                         while (iter.hasNext()) {
-                            ((Connection)iter.next()).out.println(name + ": " + str);
+                            ((Connection) iter.next()).out.println(name + ": " + str);
                         }
                     }
                 }
-
                 synchronized (connections) {
                     Iterator<Connection> iter = connections.iterator();
                     while (iter.hasNext()) {
-                        ((Connection)iter.next()).out.println(name + " отключился");
+                        ((Connection) iter.next()).out.println(name + " отключился");
                     }
                 }
             } catch (IOException e) {
@@ -109,6 +123,7 @@ public class Server {
             }
         }
 
+        //Закрыть все связанные с пользователем потоки при его отключении
         public void close() {
             try {
                 in.close();
