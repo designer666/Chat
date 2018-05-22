@@ -67,7 +67,7 @@ public class Client {
     public class Resender extends Thread {
         private boolean stoped;
 
-        public void setStop() {
+        private void setStop() {
             stoped = true;
         }
 

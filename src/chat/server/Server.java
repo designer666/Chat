@@ -18,7 +18,7 @@ import java.util.List;
 //Запустить посредством класса main
 public class Server {
 
-    private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());   //Переменна списка соединений
+    private final List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());   //Переменна списка соединений
     private ServerSocket server;    //Переменная сокета сервера
 
     //Создать сервер
@@ -54,7 +54,7 @@ public class Server {
             synchronized (connections) {
                 Iterator<Connection> iter = connections.iterator();
                 while (iter.hasNext()) {
-                    ((Connection) iter.next()).close();
+                    (iter.next()).close();
                 }
             }
         } catch (IOException e) {
@@ -70,7 +70,7 @@ public class Server {
         private String name = "";
 
         //Конструктор преобразовывает потоки, связанные с сокетом
-        public Connection(Socket socket) {
+        private Connection(Socket socket) {
             this.socket = socket;
 
             try {
@@ -92,12 +92,12 @@ public class Server {
                 synchronized (connections) {
                     Iterator<Connection> iter = connections.iterator();
                     while (iter.hasNext()) {
-                        ((Connection) iter.next()).out.println(name + " подключился");
+                        (iter.next()).out.println(name + " подключился");
                     }
                 }
 
                 //Отключить пользователя когда приходит сообщение exit
-                String str = "";
+                String str;
                 while (true) {
                     str = in.readLine();
                     if (str.equals("exit")) {
@@ -106,14 +106,14 @@ public class Server {
                     synchronized (connections) {
                         Iterator<Connection> iter = connections.iterator();
                         while (iter.hasNext()) {
-                            ((Connection) iter.next()).out.println(name + ": " + str);
+                            (iter.next()).out.println(name + ": " + str);
                         }
                     }
                 }
                 synchronized (connections) {
                     Iterator<Connection> iter = connections.iterator();
                     while (iter.hasNext()) {
-                        ((Connection) iter.next()).out.println(name + " отключился");
+                        (iter.next()).out.println(name + " отключился");
                     }
                 }
             } catch (IOException e) {
@@ -124,7 +124,7 @@ public class Server {
         }
 
         //Закрыть все связанные с пользователем потоки при его отключении
-        public void close() {
+        private void close() {
             try {
                 in.close();
                 out.close();
