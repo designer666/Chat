@@ -27,7 +27,7 @@ public class Client {
 
         //Создать входящий и исходящий поток при написании IP и ника пользователя
         try {
-            socket = new Socket(ip, 8080);
+            socket = new Socket(ip, 10000);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
