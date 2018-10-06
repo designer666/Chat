@@ -26,7 +26,7 @@ public class Server {
 
         //Создание сокета сервера с определенным портом
         try {
-            server = new ServerSocket(8080);
+            server = new ServerSocket(10000);
 
             while (true) {
 
